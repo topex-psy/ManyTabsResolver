@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Save All Opened Pics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+    body {
+      font-family: 'Mulish', sans-serif;
+      background-color: #e2fff9;
+      margin: 0;
+      position: relative;
+      width: 272px;
+    }
+    body::before {
+      content: url(image.svg);
+      width: 55%;
+      opacity: .05;
+      position: absolute;
+      right: -2rem;
+      bottom: 1rem;
+      transform: rotate(-14deg);
+      z-index: -1;
+    }
+    button {
+      line-height: 2rem;
+      border-radius: 1rem;
+      border: 0;
+      padding: 0 1rem;
+      font-weight: 600;
+      background-color: #ffdf77;
+      cursor: pointer;
+      box-shadow: 1px 2px 5px -4px rgba(0,0,0,.3);
+      transition: all .4s ease;
+      white-space: nowrap;
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    button:hover {
+      box-shadow: 1px 2px 5px -2px rgba(0,0,0,.3);
+      transform: translateY(-1px);
+    }
+    button[disabled] {
+      pointer-events: none;
+    }
+    #welcome, #manager {
+      padding: 1.5rem;
+    }
+    #manager {
+      display: none;
+    }
+    #footer {
+      background-color: #aff8e9;
+      padding: .5rem;
+      justify-content: space-between;
+      display: flex;
+    }
+    #footer a {
+      font-weight: 600;
+      margin-left: 1rem;
+    }
+    #caption {
+      font-weight: 600;
+      margin-top: 1rem;
+      margin-bottom: .25rem;
+    }
+    #info {
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+    #textarea {
+      margin-bottom: 1rem;
+      width: 100%;
+      height: 300px;
+      overflow-x: auto;
+      white-space: nowrap;
+      resize: vertical;
+      padding: 0.5rem;
+      border: 0;
+      border-radius: 0.5rem;
+      box-shadow: 1px 1px 7px -3px rgba(0, 0, 0, .3);
+    }
+    #btn-download-images, #btn-sort {
+      background-color: #77ffd0;
+    }
+    #btn-download, #btn-copy {
+      background-color: #77d0f5;
+    }
+    #btn-close-tabs {
+      background-color: #ff6767;
+      line-height: 1.75rem;
+      font-size: 12px;
+    }
+    #alertbox {
+      background: rgba(219, 119, 126, .3);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    #alertbox p {
+      margin-top: 0;
+      text-align: center;
+    }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+    }
+    </style>
+    <script src="popup.js"></script>
+  </head>
+
+  <body>
+    <div id="welcome">
+      <img id="logo" src="icons/icon128.png"/>
+      <p id="caption">What to do with all opened tabs?</p>
+      <p id="info">Please wait ...</p>
+      <div class="action-group">
+        <button type="button" class="btn-action" data-action="show" id="btn-show">Show All URLs</button>
+        <button type="button" class="btn-action" data-action="download-images" id="btn-download-images">Download Images</button>
+        <button type="button" class="btn-action" data-action="download" id="btn-download">Download All</button>
+      </div>
+      <div id="alertbox">
+        <p>5 file has been downloaded!</p>
+        <button type="button" id="btn-close-tabs">Close Tabs</button>
+      </div>
+      <div class="option-group">
+        <label><input id="opt-current-workspace" type="checkbox" checked/> Current workspace only (Opera)</label>
+      </div>
+    </div>
+    <div id="manager">
+      <textarea id="textarea"></textarea>
+      <div class="action-group">
+        <div style="display: flex">
+          <button type="button" id="btn-back">&#x21A9; Back</button>&nbsp;&nbsp;
+          <button type="button" id="btn-sort">&#x2630; Sort</button>
+        </div>
+        <button type="button" id="btn-copy">Copy All</button>
+      </div>
+    </div>
+    <div id="footer">
+      <small>
+        Created by Taufik Nur Rahmanda
+      </small>
+      <a href="https://www.taufiknur.com/" target="_blank">
+        Website
+      </a>
+    </div>
+  </body>
+</html>

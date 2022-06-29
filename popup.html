@@ -73,11 +73,18 @@
       height: 300px;
       overflow-x: auto;
       white-space: nowrap;
-      resize: vertical;
-      padding: 0.5rem;
-      border: 0;
       border-radius: 0.5rem;
-      box-shadow: 1px 1px 7px -3px rgba(0, 0, 0, .3);
+      box-shadow: 1px 1px 7px -3px rgb(0, 0, 0, .3);
+      background-color: #fff;
+      box-sizing: border-box;
+    }
+    #textarea p {
+      margin: 0;
+      padding: .25rem .5rem;
+      cursor: pointer;
+    }
+    #textarea p:hover {
+      background-color: aliceblue;
     }
     #btn-download-images, #btn-sort {
       background-color: #77ffd0;
@@ -128,7 +135,7 @@
       </div>
     </div>
     <div id="manager">
-      <textarea id="textarea"></textarea>
+      <div id="textarea"></div>
       <div class="action-group">
         <div style="display: flex">
           <button type="button" id="btn-back">&#x21A9; Back</button>&nbsp;&nbsp;

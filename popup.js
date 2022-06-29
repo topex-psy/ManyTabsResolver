@@ -10,27 +10,26 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   console.log('got message', message);
   let { action, filteredTabs, workspaceName } = message;
   let response = {'ok': true};
-  let urls = filteredTabs.map((tab) => tab.url);
+  let total = filteredTabs.length;
+  downloadTabs = filteredTabs;
   switch (action) {
     case 'handshake':
-      info.innerText = `${urls.length} tabs found ${workspaceName ? `in ${workspaceName}` : 'here'}`;
+      info.innerText = `${total} tabs found ${workspaceName ? `in ${workspaceName}` : 'here'}`;
       break;
     case 'show':
-      textarea.value = urls.join('\n');
+      showURLList(filteredTabs);
       manager.style.display = 'block';
       welcome.style.display = 'none';
       break;
     case 'download':
     case 'download-images':
-      if (!urls.length) {
+      if (!total) {
         showInfoMessage(`Nothing to be downloaded!`);
         break;
       }
-      let stuff = `${urls.length} ${action == 'download' ? 'files' : 'images'}`;
-      if (urls.length >= 10 && !confirm(`Download ${stuff} now?`)) break;
+      let stuff = `${total} ${action == 'download' ? 'files' : 'images'}`;
+      if (total >= 10 && !confirm(`Download ${stuff} now?`)) break;
       showInfoMessage(`Download ${stuff} started!`);
-
-      downloadTabs = filteredTabs;
 
       // try {
       //   // Uncaught (in promise) Error: Cannot access a chrome:// URL
@@ -51,6 +50,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   }
   sendResponse(response);
 });
+
+function showURLList(tabs) {
+  textarea.innerHTML = '';
+  tabs.forEach(putURLList);
+}
+
+function putURLList(tab) {
+  let p = document.createElement("p");
+  p.innerText = tab.url;
+  p.addEventListener('click', () => {
+    chrome.tabs.update(tab.id, {selected: true});
+  });
+  textarea.appendChild(p);
+}
 
 function sendAction(action) {
   console.log('sending action', action);
@@ -88,18 +101,19 @@ document.addEventListener('DOMContentLoaded', function () {
     downloadTabs.length = 0;
   });
   document.getElementById('btn-sort').addEventListener('click', e => {
-    textarea.value = textarea.value.split('\n').sort().join('\n');
+    downloadTabs.sort(function(a, b) {
+      return a.url == b.url ? 0 : (a.url > b.url ? 1 : -1);
+    });
+    showURLList(downloadTabs);
   });
   document.getElementById('btn-copy').addEventListener('click', e => {
-    textarea.focus();
-    textarea.select();
-    console.log('should copy:', textarea.value);
-    copyText(textarea.value, function() {
+    let text = downloadTabs.map((tab) => tab.url).join('\n');
+    copyText(text, function() {
       alert('URLs copied to clipboard!');
     });
   });
   document.getElementById('btn-back').addEventListener('click', e => {
-    textarea.value = '';
+    textarea.innerHTML = '';
     manager.style.display = 'none';
     welcome.style.display = 'block';
   });
@@ -139,7 +153,7 @@ function downloadAll(filteredTabs, closeTabs = false) {
       a.remove();
     });
     alertbox.style.display = 'block';
-    alertbox.getElementsByTagName('p')[0].innerText = `${filteredTabs.length} file(s) has been downloaded!`
+    alertbox.querySelector('p').innerText = `${filteredTabs.length} file(s) has been downloaded!`
   } catch(err) {
     console.error("download error", err);
     // filteredTabs.forEach(tab => {

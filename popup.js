@@ -6,17 +6,19 @@ var options = {
   currentWorkspaceOnly: true,
 };
 
+const maxConsecutiveDownloads = 10;
+
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   console.log('got message', message);
   let { action, filteredTabs, workspaceName } = message;
   let response = {'ok': true};
   let total = filteredTabs.length;
-  downloadTabs = filteredTabs;
   switch (action) {
     case 'handshake':
       info.innerText = `${total} tabs found ${workspaceName ? `in ${workspaceName}` : 'here'}`;
       break;
     case 'show':
+      downloadTabs = filteredTabs;
       showURLList(filteredTabs);
       manager.style.display = 'block';
       welcome.style.display = 'none';
@@ -27,9 +29,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         showInfoMessage(`Nothing to be downloaded!`);
         break;
       }
-      let stuff = `${total} ${action == 'download' ? 'files' : 'images'}`;
-      if (total >= 10 && !confirm(`Download ${stuff} now?`)) break;
-      showInfoMessage(`Download ${stuff} started!`);
+      let stuff = action == 'download' ? 'files' : 'images';
+      if (total > maxConsecutiveDownloads && !confirm(`Download ${maxConsecutiveDownloads} from ${total} ${stuff} now?`)) break;
+      downloadTabs = filteredTabs.slice(0, maxConsecutiveDownloads);
+      showInfoMessage(`Download ${downloadTabs.length} ${stuff} started!`);
 
       // try {
       //   // Uncaught (in promise) Error: Cannot access a chrome:// URL
@@ -44,7 +47,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       //   });
       // } catch(e) {
       //   console.error("cannot launch download in target tab!", e);
-        downloadAll(filteredTabs);
+        downloadAll(downloadTabs);
       // }
       break;
   }
@@ -140,9 +143,9 @@ function copyText(text, onSuccess = () => {}) {
   });
 }
 
-function downloadAll(filteredTabs, closeTabs = false) {
+function downloadAll(tabs) {
   try {
-    filteredTabs.forEach(tab => {
+    tabs.forEach(tab => {
       const a = document.createElement("a");
       a.href = tab.url;
       // a.target = '_blank'; // is it needed?
@@ -153,10 +156,10 @@ function downloadAll(filteredTabs, closeTabs = false) {
       a.remove();
     });
     alertbox.style.display = 'block';
-    alertbox.querySelector('p').innerText = `${filteredTabs.length} file(s) has been downloaded!`
+    alertbox.querySelector('p').innerText = `${tabs.length} file(s) has been downloaded!`
   } catch(err) {
     console.error("download error", err);
-    // filteredTabs.forEach(tab => {
+    // tabs.forEach(tab => {
     //   let popup = window.open(tab.url);
     //   popup.blur();
     //   window.focus();

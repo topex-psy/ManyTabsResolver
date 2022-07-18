@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Save All Opened Pics</title>
+    <title>Many Tabs Resolver</title>
     <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
     body {
@@ -59,6 +59,7 @@
       margin-left: 1rem;
     }
     #caption {
+      font-size: 1rem;
       font-weight: 600;
       margin-top: 1rem;
       margin-bottom: .25rem;
@@ -112,6 +113,12 @@
       display: flex;
       flex-direction: column;
     }
+    .form-group {
+      display: flex;
+      white-space: nowrap;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
     </style>
     <script src="popup.js"></script>
   </head>
@@ -131,7 +138,14 @@
         <button type="button" id="btn-close-tabs">Close Tabs</button>
       </div>
       <div class="option-group">
-        <label><input id="opt-current-workspace" type="checkbox" checked/> Current workspace only (Opera)</label>
+        <div class="form-group">
+          <label><input id="opt-current-workspace" type="checkbox" checked/> Current workspace only (Opera)</label>
+        </div>
+        <div class="form-group">
+          <label>Max consecutive downloads:</label>&nbsp;&nbsp;
+          <input id="opt-max-consecutive-downloads" type="number" value="10" style="width: 50px;"/>
+        </div>
+        <small title="10 is safe bet, but if you don't want limitation try in Opera browser"><em>*May not work on Chrome</em></small>
       </div>
     </div>
     <div id="manager">

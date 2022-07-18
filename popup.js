@@ -4,9 +4,9 @@ var downloadTabs = [];
 var welcome, manager, caption, info, textarea, alertbox;
 var options = {
   currentWorkspaceOnly: true,
+  maxConsecutiveDownloads: 10,
 };
 
-const maxConsecutiveDownloads = 10;
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   console.log('got message', message);
@@ -30,8 +30,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         break;
       }
       let stuff = action == 'download' ? 'files' : 'images';
-      if (total > maxConsecutiveDownloads && !confirm(`Download ${maxConsecutiveDownloads} from ${total} ${stuff} now?`)) break;
-      downloadTabs = filteredTabs.slice(0, maxConsecutiveDownloads);
+      if (total > options.maxConsecutiveDownloads && !confirm(`Download ${options.maxConsecutiveDownloads} from ${total} ${stuff} now?`)) break;
+      downloadTabs = filteredTabs.slice(0, options.maxConsecutiveDownloads);
       showInfoMessage(`Download ${downloadTabs.length} ${stuff} started!`);
 
       // try {
@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
     welcome.style.display = 'block';
   });
   document.getElementById('opt-current-workspace').addEventListener('change', e => { options.currentWorkspaceOnly = e.target.checked; });
+  document.getElementById('opt-max-consecutive-downloads').addEventListener('input', e => { options.maxConsecutiveDownloads = e.target.value; });
   sendAction("handshake");
 });
 

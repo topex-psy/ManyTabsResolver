@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 async function tabsAction(action, options) {
-  let { currentWorkspaceOnly } = options;
+  let { currentWorkspaceOnly, maxConsecutiveDownloads } = options;
 
   if (action == 'handshake') {
     // docs: https://developer.chrome.com/docs/extensions/reference/tabs/
@@ -34,7 +34,8 @@ async function tabsAction(action, options) {
 }
 
 function isImageURL(url) {
-  return url.match(/^http[^\?]*.(jpg|jpeg|tiff|gif|png|webp|bmp|apng|svg)(.*)(\?(.*))?$/gmi) != null;
+  return /^http[^\?]*.(jpg|jpeg|tiff|gif|png|webp|bmp|apng|svg)(.*)(\?(.*))?$/gmi.test(url) ||
+        /https:\/\/pbs.twimg.com\/media\/[\w]+\?format=jpg&name=[\w]+/.test(url);
 }
 
 function isFileURL(url) {

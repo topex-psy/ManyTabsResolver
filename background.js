@@ -35,7 +35,7 @@ async function tabsAction(action, options) {
 
 function isImageURL(url) {
   return /^http[^\?]*.(jpg|jpeg|tiff|gif|png|webp|bmp|apng|svg)(.*)(\?(.*))?$/gmi.test(url) ||
-        /https:\/\/pbs.twimg.com\/media\/[\w]+\?format=jpg&name=[\w]+/.test(url);
+        /https:\/\/pbs.twimg.com\/media\/[\w]+\?format=[\w]+&name=[\w]+/.test(url);
 }
 
 function isFileURL(url) {

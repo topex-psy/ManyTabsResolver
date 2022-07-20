@@ -33,22 +33,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       if (total > options.maxConsecutiveDownloads && !confirm(`Download ${options.maxConsecutiveDownloads} from ${total} ${stuff} now?`)) break;
       downloadTabs = filteredTabs.slice(0, options.maxConsecutiveDownloads);
       showInfoMessage(`Download ${downloadTabs.length} ${stuff} started!`);
-
-      // try {
-      //   // Uncaught (in promise) Error: Cannot access a chrome:// URL
-      //   chrome.tabs.query({ active: true, lastFocusedWindow: true, windowType: 'normal' }, function(tabs) {
-      //     console.log("running script in tab:", tabs[0]);
-      //     // docs: https://developer.chrome.com/docs/extensions/reference/scripting/
-      //     chrome.scripting.executeScript({
-      //       target: {tabId: tabs[0].id},
-      //       func: downloadAll,
-      //       args: [filteredTabs]
-      //     });
-      //   });
-      // } catch(e) {
-      //   console.error("cannot launch download in target tab!", e);
-        downloadAll(downloadTabs);
-      // }
+      downloadAll(downloadTabs);
       break;
   }
   sendResponse(response);
@@ -70,7 +55,7 @@ function putURLList(tab) {
 
 function sendAction(action) {
   console.log('sending action', action);
-  chrome.runtime.sendMessage({action: action, options: options}, function(response) {
+  chrome.runtime.sendMessage({action, options}, function(response) {
     let error = chrome.runtime.lastError;
     if (error) console.error('action error:', action, error.message);
     else console.log('action response:', action, response);
@@ -145,25 +130,16 @@ function copyText(text, onSuccess = () => {}) {
 }
 
 function downloadAll(tabs) {
-  try {
-    tabs.forEach(tab => {
-      const a = document.createElement("a");
-      a.href = tab.url;
-      // a.target = '_blank'; // is it needed?
-      a.download = tab.url.split("/").pop();
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    });
-    alertbox.style.display = 'block';
-    alertbox.querySelector('p').innerText = `${tabs.length} file(s) has been downloaded!`
-  } catch(err) {
-    console.error("download error", err);
-    // tabs.forEach(tab => {
-    //   let popup = window.open(tab.url);
-    //   popup.blur();
-    //   window.focus();
-    // });
-  }
+  tabs.forEach(tab => {
+    const a = document.createElement("a");
+    a.href = tab.url;
+    // a.target = '_blank'; // is it needed?
+    a.download = tab.url.split("/").pop().split('?')[0];
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  });
+  alertbox.style.display = 'block';
+  alertbox.querySelector('p').innerText = `${tabs.length} file(s) has been downloaded!`
 }

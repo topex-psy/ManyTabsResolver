@@ -7,7 +7,6 @@ var options = {
   maxConsecutiveDownloads: 10,
 };
 
-
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   console.log('got message', message);
   let { action, filteredTabs, workspaceName } = message;
@@ -15,7 +14,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   let total = filteredTabs.length;
   switch (action) {
     case 'handshake':
-      info.innerText = `${total} tabs found ${workspaceName ? `in ${workspaceName}` : 'here'}`;
+      info.innerText = `${total} tabs found` + (options.currentWorkspaceOnly ? ` ${workspaceName ? `in ${workspaceName}` : 'here'}` : ``);
       break;
     case 'show':
       downloadTabs = filteredTabs;
@@ -105,7 +104,10 @@ document.addEventListener('DOMContentLoaded', function () {
     manager.style.display = 'none';
     welcome.style.display = 'block';
   });
-  document.getElementById('opt-current-workspace').addEventListener('change', e => { options.currentWorkspaceOnly = e.target.checked; });
+  document.getElementById('opt-current-workspace').addEventListener('change', e => {
+    options.currentWorkspaceOnly = e.target.checked;
+    sendAction("handshake");
+  });
   document.getElementById('opt-max-consecutive-downloads').addEventListener('input', e => { options.maxConsecutiveDownloads = e.target.value; });
   sendAction("handshake");
 });

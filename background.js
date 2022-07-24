@@ -23,14 +23,15 @@ async function tabsAction(action, options) {
 
   let tabs = await chrome.tabs.query({ lastFocusedWindow: true, windowType: 'normal' });
   let filteredTabs = [];
+  let imageTabs = [];
+  let fileTabs = [];
   console.info(`[BG] getting urls from ${tabs.length} tabs ...`);
   tabs.forEach(tab => {
-    if (currentWorkspaceOnly && tab.workspaceId != workspaceId) return;
-    if (action == 'download' && !isFileURL(tab.url)) return;
-    if (action == 'download-images' && !isImageURL(tab.url)) return;
-    filteredTabs.push(tab);
+    if (!currentWorkspaceOnly || tab.workspaceId == workspaceId) filteredTabs.push(tab);
+    if (isImageURL(tab.url)) imageTabs.push(tab);
+    if (isFileURL(tab.url)) fileTabs.push(tab);
   });
-  sendToPopup(action, {filteredTabs, workspaceName});
+  sendToPopup(action, {filteredTabs, imageTabs, fileTabs, workspaceName});
 }
 
 function isImageURL(url) {

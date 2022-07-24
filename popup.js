@@ -1,7 +1,7 @@
 'use strict';
 
 var downloadTabs = [];
-var welcome, manager, caption, info, textarea, alertbox;
+var welcome, manager, caption, info, textarea, alertbox, btnDownloadImages, btnDownload;
 var options = {
   currentWorkspaceOnly: true,
   maxConsecutiveDownloads: 10,
@@ -9,16 +9,26 @@ var options = {
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   console.log('got message', message);
-  let { action, filteredTabs, workspaceName } = message;
+  let { action, filteredTabs, imageTabs, fileTabs, workspaceName } = message;
   let response = {'ok': true};
   let total = filteredTabs.length;
+  let totalImages = imageTabs.length;
+  let totalFiles = fileTabs.length;
   switch (action) {
     case 'handshake':
-      info.innerText = `${total} tabs found` + (options.currentWorkspaceOnly ? ` ${workspaceName ? `in ${workspaceName}` : 'here'}` : ``);
+      info.innerHTML = `
+      <strong>${total}</strong> tab${total>1?'s':''} found${(options.currentWorkspaceOnly ? ` in ${workspaceName ? workspaceName : 'this workspace'}` : ' in this browser')}<br>
+      ${[
+        totalImages ? `<strong>${totalImages}</strong> image${totalImages>1?'s':''}` : ``,
+        totalFiles ? `<strong>${totalFiles}</strong> file${totalFiles>1?'s':''}` : ``
+      ].filter(s => s).join(', ')} found
+      `;
+      btnDownloadImages.style.display = totalImages ? 'inline-block' : 'none';
+      btnDownload.style.display = totalFiles ? 'inline-block' : 'none';
       break;
     case 'show':
       downloadTabs = filteredTabs;
-      showURLList(filteredTabs);
+      showURLList();
       manager.style.display = 'block';
       welcome.style.display = 'none';
       break;
@@ -30,7 +40,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       }
       let stuff = action == 'download' ? 'files' : 'images';
       if (total > options.maxConsecutiveDownloads && !confirm(`Download ${options.maxConsecutiveDownloads} from ${total} ${stuff} now?`)) break;
-      downloadTabs = filteredTabs.slice(0, options.maxConsecutiveDownloads);
+      downloadTabs = (action == 'download' ? fileTabs : imageTabs).slice(0, options.maxConsecutiveDownloads);
       showInfoMessage(`Download ${downloadTabs.length} ${stuff} started!`);
       downloadAll(downloadTabs);
       break;
@@ -38,18 +48,16 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   sendResponse(response);
 });
 
-function showURLList(tabs) {
+function showURLList() {
   textarea.innerHTML = '';
-  tabs.forEach(putURLList);
-}
-
-function putURLList(tab) {
-  let p = document.createElement("p");
-  p.innerText = tab.url;
-  p.addEventListener('click', () => {
-    chrome.tabs.update(tab.id, {selected: true});
+  downloadTabs.forEach((tab) => {
+    let p = document.createElement("p");
+    p.innerText = tab.url;
+    p.addEventListener('click', () => {
+      chrome.tabs.update(tab.id, {selected: true});
+    });
+    textarea.appendChild(p);
   });
-  textarea.appendChild(p);
 }
 
 function sendAction(action) {
@@ -69,6 +77,8 @@ function showInfoMessage(message, timeout = 2500) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  btnDownloadImages = document.getElementById('btn-download-images');
+  btnDownload = document.getElementById('btn-download');
   welcome = document.getElementById("welcome");
   manager = document.getElementById("manager");
   caption = document.getElementById("caption");
@@ -77,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
   textarea = document.getElementById("textarea");
   const btns = document.querySelectorAll('.btn-action');
   for (let i = 0; i < btns.length; i++) btns[i].addEventListener('click', e => sendAction(e.target.dataset.action));
-  document.getElementById('btn-close-tabs').addEventListener('click', e => {
+  document.getElementById('btn-close-tabs').addEventListener('click', () => {
     alertbox.style.display = 'none';
     downloadTabs.forEach((tab) => {
       try {
@@ -87,19 +97,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     downloadTabs.length = 0;
   });
-  document.getElementById('btn-sort').addEventListener('click', e => {
-    downloadTabs.sort(function(a, b) {
-      return a.url == b.url ? 0 : (a.url > b.url ? 1 : -1);
-    });
-    showURLList(downloadTabs);
+  document.getElementById('btn-sort').addEventListener('click', () => {
+    downloadTabs.sort((a, b) => a.url == b.url ? 0 : (a.url > b.url ? 1 : -1));
+    showURLList();
   });
-  document.getElementById('btn-copy').addEventListener('click', e => {
+  document.getElementById('btn-copy').addEventListener('click', () => {
     let text = downloadTabs.map((tab) => tab.url).join('\n');
     copyText(text, function() {
       alert('URLs copied to clipboard!');
     });
   });
-  document.getElementById('btn-back').addEventListener('click', e => {
+  document.getElementById('btn-back').addEventListener('click', () => {
     textarea.innerHTML = '';
     manager.style.display = 'none';
     welcome.style.display = 'block';

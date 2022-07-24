@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Many Tabs Resolver",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "1-Click to download images, files, or copy all opened addresses.",
   "author": "Taufik Nur Rahmanda",
   "permissions": [
